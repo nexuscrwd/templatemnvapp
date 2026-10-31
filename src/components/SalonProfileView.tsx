@@ -2121,15 +2121,15 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
     return catalogServices.slice(start, start + SERVICES_PER_PAGE);
   }, [catalogServices, servicePage]);
 
-  // Controles de swipe/swap para os três blocos da Seção Espaço (0: Equipe, 1: Estrutura, 2: Endereço & Mapa)
+  // Controles de swipe/swap para os dois blocos da Seção Espaço (0: Estrutura, 1: Endereço & Mapa)
   const handleNextEspacoSlide = () => {
     setEspacoSwipeDirection(1);
-    setEspacoSlideIndex((prev) => (prev + 1) % 3);
+    setEspacoSlideIndex((prev) => (prev + 1) % 2);
   };
 
   const handlePrevEspacoSlide = () => {
     setEspacoSwipeDirection(-1);
-    setEspacoSlideIndex((prev) => (prev - 1 + 3) % 3);
+    setEspacoSlideIndex((prev) => (prev - 1 + 2) % 2);
   };
 
   const sectionHeaderStyleData = useMemo(() => {
@@ -2943,8 +2943,8 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
 
               <div className="px-3.5 sm:px-4 py-2.5 space-y-2.5 flex-1 min-h-0 flex flex-col justify-start overflow-y-auto">
                 {/* Abas de Navegação Interna da Seção Espaço */}
-                <div className="grid grid-cols-3 gap-1.5 w-full">
-                  {/* Aba 1: Equipe */}
+                <div className="grid grid-cols-2 gap-1.5 w-full">
+                  {/* Aba 1: Estrutura */}
                   <button
                     type="button"
                     onClick={() => {
@@ -2961,22 +2961,15 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                           : 'bg-slate-100 text-slate-600 hover:text-slate-900 font-medium border border-slate-200'
                     }`}
                   >
-                    <Users className={`w-3.5 h-3.5 shrink-0 ${
+                    <Store className={`w-3.5 h-3.5 shrink-0 ${
                       espacoSlideIndex === 0 ? 'text-emerald-400' : 'text-slate-400'
                     }`} />
                     <span className="text-[11px] sm:text-xs tracking-tight truncate">
-                      Equipe
-                    </span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold leading-none ${
-                      espacoSlideIndex === 0
-                        ? 'bg-emerald-500 text-white'
-                        : isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-200 text-slate-600'
-                    }`}>
-                      {salonInfo.professionals.length}
+                      Estrutura
                     </span>
                   </button>
 
-                  {/* Aba 2: Estrutura */}
+                  {/* Aba 2: Localização */}
                   <button
                     type="button"
                     onClick={() => {
@@ -2993,33 +2986,8 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                           : 'bg-slate-100 text-slate-600 hover:text-slate-900 font-medium border border-slate-200'
                     }`}
                   >
-                    <Store className={`w-3.5 h-3.5 shrink-0 ${
-                      espacoSlideIndex === 1 ? 'text-emerald-400' : 'text-slate-400'
-                    }`} />
-                    <span className="text-[11px] sm:text-xs tracking-tight truncate">
-                      Estrutura
-                    </span>
-                  </button>
-
-                  {/* Aba 3: Localização */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEspacoSwipeDirection(2 < espacoSlideIndex ? -1 : 1);
-                      setEspacoSlideIndex(2);
-                    }}
-                    className={`py-2 px-1 rounded text-center transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
-                      espacoSlideIndex === 2
-                        ? isDark
-                          ? 'bg-slate-800 text-white font-bold border border-emerald-500/50 shadow-xs'
-                          : 'bg-white text-slate-900 font-bold border border-emerald-500/50 shadow-xs'
-                        : isDark
-                          ? 'bg-slate-900/80 text-slate-400 hover:text-white font-medium border border-slate-800'
-                          : 'bg-slate-100 text-slate-600 hover:text-slate-900 font-medium border border-slate-200'
-                    }`}
-                  >
                     <MapPin className={`w-3.5 h-3.5 shrink-0 ${
-                      espacoSlideIndex === 2 ? 'text-emerald-400' : 'text-slate-400'
+                      espacoSlideIndex === 1 ? 'text-emerald-400' : 'text-slate-400'
                     }`} />
                     <span className="text-[11px] sm:text-xs tracking-tight truncate">
                       Localização
@@ -3030,86 +2998,8 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                 {/* Container com Suporte a Gesto Swipe (Arrasto Horizontal para Esquerda e Direita) */}
                 <div className="relative overflow-hidden select-none flex-1 min-h-0 flex flex-col justify-between">
                   <AnimatePresence mode="wait" custom={espacoSwipeDirection}>
-                    {/* SLIDE 0: EQUIPE & ESPECIALISTAS */}
+                    {/* SLIDE 0: ESTRUTURA DO ESPAÇO */}
                     {espacoSlideIndex === 0 && (
-                      <motion.div
-                        key="slide-equipe"
-                        custom={espacoSwipeDirection}
-                        initial={{ opacity: 0, x: espacoSwipeDirection > 0 ? 40 : -40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: espacoSwipeDirection > 0 ? -40 : 40 }}
-                        transition={{ duration: 0.22, ease: 'easeOut' }}
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={0.2}
-                        onDragEnd={(_, info) => {
-                          if (info.offset.x < -35 || info.velocity.x < -200) {
-                            handleNextEspacoSlide();
-                          } else if (info.offset.x > 35 || info.velocity.x > 200) {
-                            handlePrevEspacoSlide();
-                          }
-                        }}
-                        className="cursor-grab active:cursor-grabbing touch-pan-y flex-1 min-h-0 flex flex-col"
-                      >
-                        {/* ABA 1: EQUIPE / NOSSO TIME (LAYOUT PLANO, SEM BOX DENTRO DE BOX) */}
-                        <div className={`border rounded p-4 flex-1 min-h-[340px] flex flex-col justify-between transition-colors ${
-                          isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
-                        }`}>
-                          <div className="flex-1 min-h-0 flex flex-col">
-                            {/* Título direto e discreto */}
-                            <div className={`flex items-center justify-between pb-3 border-b shrink-0 mb-3 ${
-                              isDark ? 'border-slate-800/80' : 'border-slate-200'
-                            }`}>
-                              <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-emerald-400" />
-                                <h4 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                  {hasMultipleProfessionals ? 'Nosso Time' : 'Profissional'}
-                                </h4>
-                              </div>
-                              <span className="text-[11px] font-medium text-slate-400">
-                                {salonInfo.professionals.length} {salonInfo.professionals.length === 1 ? 'especialista' : 'especialistas'}
-                              </span>
-                            </div>
-
-                            {/* Grade Aberta e Plana da Equipe */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-4 py-3 overflow-y-auto pr-1 flex-1 min-h-0 no-scrollbar items-start">
-                              {salonInfo.professionals.map((prof, idx) => (
-                                <div 
-                                  key={idx} 
-                                  className="flex flex-col items-center text-center"
-                                >
-                                  {prof.avatar ? (
-                                    <img
-                                      src={prof.avatar}
-                                      alt={prof.name}
-                                      className={`w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded object-cover shadow-xs mb-2 border ${
-                                        isDark ? 'border-slate-800' : 'border-slate-200'
-                                      }`}
-                                      referrerPolicy="no-referrer"
-                                    />
-                                  ) : (
-                                    <div className={`w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded bg-slate-800 flex items-center justify-center shadow-xs mb-2 border ${
-                                      isDark ? 'border-slate-800' : 'border-slate-200'
-                                    }`}>
-                                      <User className="w-8 h-8 text-slate-500" />
-                                    </div>
-                                  )}
-                                  <h5 className={`text-xs font-bold leading-tight truncate w-full px-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                    {prof.name}
-                                  </h5>
-                                  <p className={`text-[11px] leading-snug mt-0.5 truncate w-full px-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                    {prof.role}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* SLIDE 1: ESTRUTURA DO ESPAÇO */}
-                    {espacoSlideIndex === 1 && (
                       <motion.div
                         key="slide-espaco-estrutura"
                         custom={espacoSwipeDirection}
@@ -3129,7 +3019,7 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                         }}
                         className="cursor-grab active:cursor-grabbing touch-pan-y flex-1 min-h-0 flex flex-col"
                       >
-                        {/* ABA 2: CARD DE ESTRUTURA DO ESPAÇO & COMODIDADES */}
+                        {/* ABA 1: CARD DE ESTRUTURA DO ESPAÇO & COMODIDADES */}
                         <div className={`border rounded p-3.5 space-y-3 shadow-xs flex-1 min-h-[340px] flex flex-col justify-between ${
                           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
                         }`}>
@@ -3147,7 +3037,7 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                                   isDark
                                     ? 'bg-slate-950 border-slate-800 text-slate-300'
                                     : 'bg-slate-50 border-slate-200 text-slate-700'
-                                }}`}>
+                                }`}>
                                   <amenity.icon className="w-4 h-4 text-emerald-500 shrink-0" />
                                   <span className="truncate font-medium">{amenity.label}</span>
                                 </div>
@@ -3165,8 +3055,8 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                       </motion.div>
                     )}
 
-                    {/* SLIDE 2: ENDEREÇO & MAPA EMBED */}
-                    {espacoSlideIndex === 2 && (
+                    {/* SLIDE 1: ENDEREÇO & MAPA EMBED */}
+                    {espacoSlideIndex === 1 && (
                       <motion.div
                         key="slide-espaco-mapa"
                         custom={espacoSwipeDirection}
@@ -3186,7 +3076,7 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                         }}
                         className="cursor-grab active:cursor-grabbing touch-pan-y flex-1 min-h-0 flex flex-col"
                       >
-                        {/* ABA 3: CARD DE ENDEREÇO, COMO CHEGAR & MAPA EMBED */}
+                        {/* ABA 2: CARD DE ENDEREÇO, COMO CHEGAR & MAPA EMBED */}
                         <div className={`border rounded p-3.5 space-y-3 shadow-xs flex-1 min-h-[340px] flex flex-col justify-between ${
                           isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
                         }`}>
@@ -3247,7 +3137,7 @@ export const SalonProfileView: React.FC<SalonProfileViewProps> = ({
                       Deslize para alternar entre as abas
                     </span>
                     <div className="flex items-center gap-1.5">
-                      {[0, 1, 2].map((dotIdx) => (
+                      {[0, 1].map((dotIdx) => (
                         <button
                           key={dotIdx}
                           onClick={() => {

@@ -13,6 +13,344 @@ Este arquivo registra cronologicamente todas as modificações relevantes realiz
 
 ---
 
+### [2026-10-31] — Inserção de Rótulos Acima dos Números e Renomeação de ETA para Temp. Rest. (`bol-076`)
+- **Tipo:** `[UX / UI — Refinamento de Rótulos de Métricas via Focus Mode]`
+- **Motivo / Solicitação:** Inserir os textos descritivos acima dos números nas métricas do subcabeçalho e renomear ETA para "Temp. Rest." (Tempo Restante).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Rótulos Acima e Renomeação (`LiveTrackingModal.tsx`):** Ajustados os blocos de métricas para posicionar o rótulo descritivo (`Distância`, `Temp. Rest.`, `Velocidade`) acima do valor numérico correspondente.
+
+---
+
+### [2026-10-31] — Remoção de Fundo de Cards e Números Grandes nas Métricas (`bol-075`)
+- **Tipo:** `[UX / UI — Limpeza de Cards e Destaque Numérico via Focus Mode]`
+- **Motivo / Solicitação:** Remover o fundo dos cards de métricas no subcabeçalho, deixando apenas os números em tamanho grande e destacado (`text-lg font-black font-mono`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção de Fundo e Destaque de Números (`LiveTrackingModal.tsx`):** Removidos os contêineres com fundo translúcido/borda das métricas (KM, ETA e KM/H), aplicando tipografia grande em destaque (`text-lg font-black`).
+
+---
+
+### [2026-10-31] — Aplicação de Estilos Precisos (Focus Mode) no Bloco de Manobra (`bol-074`)
+- **Tipo:** `[UX / UI — Refinamento de Layout e Tipografia via Focus Mode]`
+- **Motivo / Solicitação:** Aplicar propriedades CSS exatas (fonte Verdana, 10px bold, dimensões de altura e largura, margens e preenchimentos) especificadas via Focus Mode no bloco de instruções de direção e subcabeçalho.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Estilos de Focus Mode (`LiveTrackingModal.tsx`):** Aplicadas as regras de tipografia (`font-['Verdana']`, `font-bold`, `text-[10px]`) e espaçamentos/dimensões exatas (`h-[45px] w-[175.188px]`, margens e paddings) no subcabeçalho e container de manobra.
+
+---
+
+### [2026-10-31] — Comandos Curtos de Direção e Efeito Piscante Amarelo (Próxima Rua) (`bol-073`)
+- **Tipo:** `[UX / UI — Alertas de Navegação em Tempo Real via Focus Mode]`
+- **Motivo / Solicitação:** Formatar as instruções de direção de forma curta e direta (ex: `DOBRE A DIREITA`, `DOBRE A ESQUERDA`) e adicionar um fundo piscante em amarelo (`animate-pulse bg-amber-400/20`) para destacar a próxima manobra.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Comandos Curtos e Alerta Amarelo (`LiveTrackingModal.tsx`):** Implementada a função `getShortManeuverText` para normalizar as instruções e aplicado efeito de pulso em amarelo âmbar no bloco de direção do subcabeçalho.
+
+---
+
+### [2026-10-31] — Habilitação de Quebra de Texto nas Instruções de Navegação (`bol-072`)
+- **Tipo:** `[UX / UI — Refinamento de Tipografia e Quebra de Texto via Focus Mode]`
+- **Motivo / Solicitação:** Substituir a truncagem de texto por quebra de linha natural (`whitespace-normal break-words line-clamp-2`) nas instruções de manobra do subcabeçalho (`LiveTrackingModal.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Quebra de Linha em Instruções (`LiveTrackingModal.tsx`):** Removida a classe `truncate` e aplicadas classes de quebra de palavras (`whitespace-normal break-words line-clamp-2 leading-tight`) para permitir exibição completa de nomes de ruas longos.
+
+---
+
+### [2026-10-31] — Inserção de Instruções de Navegação à Esquerda do Subcabeçalho (`bol-071`)
+- **Tipo:** `[UX / UI — Instruções de Rota em Tempo Real via Focus Mode]`
+- **Motivo / Solicitação:** Inserir instruções de navegação (ícone de direção + legenda como "Próxima Esquerda") no lado esquerdo do subcabeçalho da modal de rastreamento ao vivo (`LiveTrackingModal.tsx` e `InteractiveGoogleRouteMap.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Instruções de Manobra (`LiveTrackingModal.tsx` & `InteractiveGoogleRouteMap.tsx`):** Adicionado o callback `onManeuverUpdate` para sincronizar as manobras ativas da rota. Exibição à esquerda do subcabeçalho com ícone dinâmico (`CornerUpLeft`, `CornerUpRight`, etc.) e legenda descritiva.
+
+---
+
+### [2026-10-31] — Remoção de Fundo de Card nos Ícones de Aplicativos Externos (`bol-070`)
+- **Tipo:** `[UX / UI — Limpeza de Estilização de Contêiner via Focus Mode]`
+- **Motivo / Solicitação:** Remover o fundo de card, bordas e preenchimento (`padding`) dos links de atalho do Google Maps e Waze, deixando apenas as imagens limpas e transparentes com efeito hover.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção de Contêiner (`LiveTrackingModal.tsx`):** Removidas as classes de fundo branco/escuro, bordas e sombras dos elementos `a` de navegação externa, mantendo apenas o link limpo envolvendo diretamente a imagem de 30px.
+
+---
+
+### [2026-10-31] — Remoção de Spans de Texto e Ajuste de Tamanho (30px) nos Logotipos (`bol-069`)
+- **Tipo:** `[UX / UI — Refinamento de Botões de Navegação via Focus Mode]`
+- **Motivo / Solicitação:** Remover os spans de texto de identificação dos botões do Google Maps e Waze, deixando exclusivamente os logotipos oficiais ajustados para o tamanho de 30px por 30px (`w-[30px] h-[30px]`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Ajuste de Dimensões e Remoção de Spans (`LiveTrackingModal.tsx`):** Os rótulos de texto foram removidos dos botões de atalho externo, e as imagens dos logotipos foram redimensionadas para `30px × 30px` com alinhamento centralizado.
+
+---
+
+### [2026-10-31] — Integração dos Logotipos Oficiais do Google Maps e Waze (`bol-068`)
+- **Tipo:** `[UX / UI — Ativos Gráficos Oficiais via Upload do Usuário]`
+- **Motivo / Solicitação:** Substituir os ícones anteriores pelos logotipos oficiais enviados pelo usuário (`maps_7572ddee.png` e `waze_c7621164.png`) nos botões de atalho dos aplicativos de navegação.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Logotipos Oficiais (`LiveTrackingModal.tsx`):** Atualizados os botões de acesso ao Google Maps e Waze para renderizarem os arquivos de imagem oficiais enviados pelo usuário (`/assets/aistudio/maps_7572ddee.png` e `/assets/aistudio/waze_c7621164.png`).
+
+---
+
+### [2026-10-31] — Seletor Mapa/Lista no Cabeçalho Principal e Ícones Oficiais do Google Maps e Waze (`bol-067`)
+- **Tipo:** `[UX / UI — Reorganização de Cabeçalho e Ícones Oficiais via Focus Mode]`
+- **Motivo / Solicitação:** Inserir o seletor de modo (mapa/lista) no cabeçalho principal ao lado dos botões dos apps Google Maps e Waze, e substituir os ícones genéricos por SVGs oficiais e detalhados do Google Maps e Waze.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Seletor no Cabeçalho Principal (`LiveTrackingModal.tsx`):** O seletor de abas (Mapa e Itinerário) foi transferido para o cabeçalho superior direito, posicionado logo após os botões dos aplicativos de navegação externos.
+  2. **Ícones Oficiais SVG:** Adicionados os vetores SVG oficiais estilizados para o pin multicolores do Google Maps e o balão sorridente do Waze.
+
+---
+
+### [2026-10-31] — Sombra Compacta e Mais Próxima nos Cards de Métricas (`bol-066`)
+- **Tipo:** `[UX / UI — Refinamento de Sombras via Focus Mode]`
+- **Motivo / Solicitação:** Ajustar a sombra flutuante dos cards de métricas para ter um raio menor e mais compacto, ficando mais próxima e definida junto aos elementos (`shadow-[1px_3px_5px_rgba(0,0,0,0.26)]`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Sombra Compacta (`LiveTrackingModal.tsx`):** Ajustado o raio e o desfoque das sombras dos três cards de métricas para `shadow-[1px_3px_5px_rgba(0,0,0,0.26)]`, garantindo maior proximidade visual.
+
+---
+
+### [2026-10-31] — Sombra Direcional de Botão Flutuante nos Cards de Métricas (`bol-065`)
+- **Tipo:** `[UX / UI — Estilização de Sombras via Focus Mode]`
+- **Motivo / Solicitação:** Aplicar sombra direcional nos três cards de métricas (KM, ETA e KM/H) para simular o efeito de botão flutuante, com projeção mais escura no pé e no lado direito do card (`shadow-[2px_4px_10px_rgba(0,0,0,0.22)]`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Sombra Flutuante Personalizada (`LiveTrackingModal.tsx`):** Atualizada a propriedade `shadow` de cada card individual de métricas para `shadow-[2px_4px_10px_rgba(0,0,0,0.22)]`, conferindo relevo tridimensional e destaque superior no cabeçalho.
+
+---
+
+### [2026-10-31] — Remoção do Ícone SVG do Botão Waze (`bol-064`)
+- **Tipo:** `[UX / UI — Remoção de Ícone via Focus Mode]`
+- **Motivo / Solicitação:** Remover o ícone SVG (`ExternalLink`) selecionado no botão do Waze no cabeçalho superior (`LiveTrackingModal.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção de Ícone (`LiveTrackingModal.tsx`):** Removido o elemento `<ExternalLink />` do botão de acesso rápido ao Waze, mantendo apenas o rótulo de texto estilizado.
+
+---
+
+### [2026-10-31] — Remoção do Card de Velocidade / KM do Rodapé do Mapa (`bol-063`)
+- **Tipo:** `[UX / UI — Limpeza de Rodapé do Mapa via Focus Mode]`
+- **Motivo / Solicitação:** Remover o card de KM/velocidade situado no rodapé (inferior esquerdo) do mapa (`InteractiveGoogleRouteMap.tsx`), mantendo apenas as métricas centralizadas no subcabeçalho superior.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção de Card no Rodapé (`InteractiveGoogleRouteMap.tsx`):** Excluído o bloco flutuante de velocidade do canto inferior esquerdo do mapa, deixando a visualização cartográfica 100% limpa.
+
+---
+
+### [2026-10-31] — Separação das Métricas do Cabeçalho em Cards Individuais de Vidro Translúcido (`bol-062`)
+- **Tipo:** `[UX / UI — Refatoração de Cards de Métricas via Focus Mode]`
+- **Motivo / Solicitação:** Separar o card unificado de métricas no cabeçalho em cards individuais para cada elemento (Distância em KM, Tempo Restante / ETA, e Velocidade KM/H) preservando o efeito vidro translúcido (`frosted glass`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Cards Individuais de Métricas (`LiveTrackingModal.tsx`):** O container unificado foi refatorado em três pequenos cards independentes ao lado direito do cabeçalho, cada um com sua borda de vidro translúcido (`bg-white/85 dark:bg-slate-900/50 backdrop-blur-xl`) e espaçamento proporcional.
+
+---
+
+### [2026-10-31] — Inserção do Indicador de Velocidade KM/H no Submenu do Cabeçalho (`bol-061`)
+- **Tipo:** `[UX / UI — Unificação de Métricas de Rota no Cabeçalho]`
+- **Motivo / Solicitação:** Inserir o medidor de velocidade em KM/H no submenu do cabeçalho ao lado do contador de KM e tempo restante, mantendo a tela do mapa totalmente limpa.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Velocidade no Cabeçalho (`LiveTrackingModal.tsx`):** Adicionado `currentSpeedKmh` via callback prop `onSpeedUpdate` do mapa para exibir `45 KM/H` ao lado de `29,5 KM • 00:34` no submenu com efeito vidro translúcido.
+  2. **Remoção de Badge Inferior (`InteractiveGoogleRouteMap.tsx`):** Removido o badge flutuante de velocidade do canto inferior esquerdo para centralizar todas as métricas no cabeçalho.
+
+---
+
+### [2026-10-31] — Botão Compartilhar, Acessos Externos Google Maps & Waze e Abas com Ícones Puros (`bol-060`)
+- **Tipo:** `[UX / UI — Ações de Cabeçalho e Redesenho de Abas via Focus Mode]`
+- **Motivo / Solicitação:** Substituir o título "Navegação" por um botão "Compartilhar" (que avisa o salão e mostra o trajeto em tempo real), inserir os botões de atalho do Google Maps e Waze à esquerda do botão fechar (preenchidos com origem e destino) e remover as legendas das abas de Mapa e Itinerário, utilizando o ícone de lista (`ListOrdered`) para o itinerário.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Botão Compartilhar (`LiveTrackingModal.tsx`):** Inserido no lugar do título "Navegação", atualizando o status de rastreamento para `live_sharing` e disparando alerta de confirmação.
+  2. **Atalhos Google Maps & Waze:** Adicionados à esquerda do botão de fechar, com links profundos gerados automaticamente com as coordenadas de origem e destino.
+  3. **Abas Mapa e Itinerário:** Reduzidas para botões puramente baseados em ícones (`MapIcon` e `ListOrdered`).
+
+---
+
+### [2026-10-31] — Remoção do Título, Protocolo e Sub-cabeçalho de Destino no Modal de Navegação (`bol-059`)
+- **Tipo:** `[UX / UI — Limpeza de Cabeçalho do Modal via Focus Mode]`
+- **Motivo / Solicitação:** Remover o bloco de título/protocolo e o sub-cabeçalho de endereço de destino no modal de navegação ao vivo (`LiveTrackingModal.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Limpeza do Cabeçalho (`LiveTrackingModal.tsx`):** Removidos o bloco de título (`h3`), subtítulo/protocolo (`p`) e o sub-cabeçalho completo com o endereço de destino (`salonDestAddress`), mantendo apenas a barra superior limpa com as abas e o contador KM/ETA.
+
+---
+
+### [2026-10-31] — Remoção do Badge "GPS ATIVO" Abaixo do Mapa (`bol-058`)
+- **Tipo:** `[UX / UI — Remoção de Elemento de Status no Mapa]`
+- **Motivo / Solicitação:** Remover o elemento/badge *"GPS ATIVO"* situado abaixo do mapa na tela de navegação ao vivo (`InteractiveGoogleRouteMap.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção do Badge "GPS ATIVO":** Excluído o elemento visual de status GPS do canto inferior esquerdo do mapa, preservando apenas o velocímetro digital limpo.
+
+---
+
+### [2026-10-30] — Reorganização do Cabeçalho (Mapa e Itinerário a 1/3 à Esquerda, Contador KM/ETA no Canto Oposto) e Posicionamento do Ícone de Navegação a 1/3 do Mapa (`bol-057`)
+- **Tipo:** `[UX / UI — Reorganização de Cabeçalho, Mapa Limpo e Reposicionamento de Câmera GIS]`
+- **Motivo / Solicitação:** Reduzir os botões "Mapa" e "Itinerário" para 1/3 do tamanho e alinhá-los à esquerda do cabeçalho; inserir o contador de KM e tempo restante no canto oposto do cabeçalho (deixando o mapa 100% sem poluição); e reposicionar o ícone de navegação (puck) na linha de 1/3 inferior do mapa.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Cabeçalho Reorganizado (`LiveTrackingModal.tsx`):** Os botões "Mapa" e "Itinerário" foram compactados (`w-[150px] sm:w-[170px]`) e alinhados à esquerda do cabeçalho. No canto oposto, foi inserido o contador de KM e ETA com efeito vidro translúcido (`bg-white/85 dark:bg-slate-900/50 backdrop-blur-xl border border-white/80`).
+  2. **Mapa Limpo (`InteractiveGoogleRouteMap.tsx`):** Removidos todos os cards flutuantes de sobreposição do mapa para garantir zero poluição visual.
+  3. **Posicionamento GIS (1/3 inferior):** A projeção de look-ahead da câmera foi ajustada para `0.15` km (`150m`), posicionando o ícone de navegação do usuário na linha de 1/3 a partir do rodapé do mapa.
+
+---
+
+### [2026-10-30] — Efeito Vidro Translúcido (Frosted Glass Claro) no Card de Distância/ETA e Formato Igualitário (`29,5` / `XX:XX`) (`bol-056`)
+- **Tipo:** `[UX / UI — Efeito Vidro Translúcido Claro e Formatação de Tamanho Uniforme]`
+- **Motivo / Solicitação:** Substituir o fundo escuro do card de distância/ETA por um efeito de vidro translúcido mais claro (`bg-white/85 dark:bg-slate-900/50 backdrop-blur-xl border border-white/80 dark:border-slate-700/40`) para não poluir o layout do mapa, e ajustar a formatação para exibir `29,5` e `XX:XX` com exatamente o mesmo tamanho de fonte.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Efeito Vidro Translúcido Claro (`InteractiveGoogleRouteMap.tsx`):** Atualizado o card de distância/ETA e os botões de zoom com `bg-white/85 dark:bg-slate-900/50 backdrop-blur-xl border border-white/80` (e tema escuro compatível), garantindo integração visual limpa com o mapa.
+  2. **Tamanho Uniforme:** `formattedKm` e `formattedHhMm` agora compartilham a mesma classe tipográfica (`text-sm font-black font-mono`).
+
+---
+
+### [2026-10-30] — Preenchimento Alpha no Card de Distância/ETA, Formato Vertical `XX,X KM` / `HH:MM` e Adição de Botões de Zoom (+ / -) (`bol-055`)
+- **Tipo:** `[UX / UI — Estilização Alpha do Card de Rota, Formatação Vertical e Habilitação de Zoom]`
+- **Motivo / Solicitação:** Aplicar preenchimento em transparência alpha (`bg-slate-900/40 backdrop-blur-md`) no card que calcula a distância e o tempo restante de chegada, formatá-lo verticalmente com `XX,X KM` e `HH:MM`, e adicionar botões de zoom (`+` / `-`) funcionais no canto superior direito do mapa para garantir zoom instantâneo.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Alpha Fill & Formato Vertical (`InteractiveGoogleRouteMap.tsx`):** O card de distância/ETA no canto superior direito foi atualizado com `bg-slate-900/40 backdrop-blur-md border border-slate-700/40` e layout em coluna (`flex flex-col items-end gap-0.5`), exibindo *XX,X KM* com `KM` em maiúsculo acima de *HH:MM*.
+  2. **Botões de Zoom Funcionais (`+` / `-`):** Adicionados botões dedicados de zoom no canto superior direito acoplados ao mapa via `lmap.zoomIn()` e `lmap.zoomOut()`.
+
+---
+
+### [2026-10-30] — Remoção do Badge de Orientação "Frente p/ Cima" do Mapa (`bol-054`)
+- **Tipo:** `[UX / UI — Remoção de Elemento no Mapa via Focus Mode]`
+- **Motivo / Solicitação:** Remover o elemento/badge indicador de orientação *"Frente p/ Cima"* situado na parte superior esquerda do mapa (`InteractiveGoogleRouteMap.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção do Badge de Orientação:** Excluído por completo o bloco `div` do indicador *"Frente p/ Cima"* no canto superior esquerdo do mapa, mantendo apenas o widget de distância e ETA no canto superior direito e o velocímetro/GPS ativo no rodapé.
+
+---
+
+### [2026-10-30] — Reposicionamento do Widget de Distância e Tempo Restantes (HUD) para o Canto Superior Direito do Mapa (`bol-053`)
+- **Tipo:** `[UX / UI — Reposicionamento de Elemento HUD no Mapa]`
+- **Motivo / Solicitação:** Reposicionar o botão/widget que calcula a distância restante e o tempo restante de chegada (anteriormente no canto inferior direito) para o canto superior direito do mapa (`absolute top-2.5 right-2.5 z-20`), realocando o badge de orientação para o canto superior esquerdo (`top-2.5 left-2.5`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Widget de Distância/ETA (`InteractiveGoogleRouteMap.tsx`):** Alterado o posicionamento de `absolute bottom-3 right-3 z-10` para `absolute top-2.5 right-2.5 z-20`.
+  2. **Badge de Orientação:** Reposicionado para `absolute top-2.5 left-2.5 z-20` para evitar sobreposição no canto superior direito.
+
+---
+
+### [2026-10-30] — Conversão do Botão de Orientação do Mapa em Badge Informativo Alpha no Canto Superior Direito (`bol-052`)
+- **Tipo:** `[UX / UI — Conversão de Botão em Badge Informativo com Preenchimento Alpha]`
+- **Motivo / Solicitação:** Converter o botão indicador de orientação (`Frente p/ Cima` / `Norte Fixo`) do mapa em um elemento puramente informativo (não clicável), com preenchimento em transparência alpha (`bg-slate-900/40 backdrop-blur-md`) posicionado no canto superior direito do mapa.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Badge Informativo Alpha (`InteractiveGoogleRouteMap.tsx`):** Substituído o elemento interativo `<button>` do Course-Up por um `div` não interativo (`pointer-events-none`) com fundo `bg-slate-900/40`, borda sutil, backdrop blur, ícone de bússola rotativo e texto fixo "Frente p/ Cima" posicionado no canto superior direito (`absolute top-2.5 right-2.5 z-20`).
+
+---
+
+### [2026-10-30] — Remoção da Aba "Equipe" na Seção Espaço (`bol-051`)
+- **Tipo:** `[UX / UI — Remoção de Aba via Focus Mode]`
+- **Motivo / Solicitação:** Remover o botão da aba "Equipe" (`button:nth-of-type(1)`) na seção de espaço (`SalonProfileView.tsx`).
+- **Arquivos Impactados:**
+  - `src/components/SalonProfileView.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção da Aba Equipe:** Removido o botão da aba "Equipe", reorganizado o grid de navegação interna de 3 colunas para 2 colunas (Estrutura e Localização), atualizados os índices de slide e os indicadores de pontos.
+
+### [2026-10-30] — Remoção do Cartão Superior de Instrução de Manobra no Mapa GPS (`bol-050`)
+- **Tipo:** `[UX / UI — Remoção do Cartão Superior de Navegação via Focus Mode & Screenshot]`
+- **Motivo / Solicitação:** Remover o cartão superior de instrução de manobra e atalhos no mapa de navegação (`InteractiveGoogleRouteMap.tsx`), conforme apontado pelo usuário na captura de tela.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/InteractiveGoogleRouteMap.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção do Cartão Superior de Manobra:** Removido por completo o contêiner flutuante superior de instrução de manobra do mapa ao vivo, mantendo a cartografia limpa e reposicionando o botão de orientação ("Frente p/ Cima" / "Norte Fixo").
+
+### [2026-10-30] — Proteção Contra Fechamento Acidental de Modais por Arraste de Mouse ou Seleção de Texto (`bol-049`)
+- **Tipo:** `[Fix / UX — Trava Anti-Fechamento por Arraste no Mouse e Seleção em Modais/Drawers]`
+- **Motivo / Solicitação:** Corrigir problema frustrante relatado pelo usuário onde, ao arrastar o mouse para selecionar texto ou rolar elementos dentro de modais/drawers, as seções e formulários fechavam acidentalmente ao soltar o clique próximo às bordas ou no overlay de fundo.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/RouteSimulatorModal.tsx`
+  - `src/components/live-tracking/LiveTrackingModal.tsx`
+  - `src/components/PartnerOnboardingModal.tsx`
+  - `src/components/ProfileDrawer.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Padronização da Ref `backdropMouseDownRef` nos Overlays:** Implementada checagem estrita em todos os wrappers de fundo (`backdrop`). O encerramento do modal via clique externo só é acionado se a ação de clique do mouse tiver sido iniciada **e** concluída no próprio fundo do overlay (`e.target === e.currentTarget`), ignorando drag e release iniciados dentro do conteúdo do modal.
+  2. **Interrupção de Eventos nos Contêineres Internos:** Adicionados `onMouseDown={(e) => e.stopPropagation()}` e `onClick={(e) => e.stopPropagation()}` em todos os cards e gavetas internas, impedindo vazamento de cliques e movimentos de seleção de texto para o backdrop.
+
+### [2026-10-30] — Remoção de Instrução e Implementação de Busca Inteligente de Endereço/CEP no Simulador de Rota (`RouteSimulatorModal`) (bol-048)
+- **Tipo:** `[UX / UI — Autocomplete de Endereço & Remoção de Instrução]`
+- **Motivo / Solicitação:** Remover a div de instruções no formulário (`form > div:nth-of-type(4)`) e tornar os inputs de endereço/destino inteligentes com autocomplete via Places API e busca automática de CEP via ViaCEP.
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/RouteSimulatorModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção de Instrução:** Removida a div de dica/instrução no rodapé do formulário (`form > div:nth-of-type(4)`).
+  2. **Endereço Inteligente & CEP Automático:** Adicionada função `handleSmartInputChange` que detecta digitação de CEP (8 dígitos), consulta ViaCEP + geocodificação para preencher endereço completo e coordenadas, e realiza autocomplete em tempo real via Google Places API com dropdown de sugestões para locais e ruas.
+
+### [2026-10-30] — Remoção da Linha "GPS Ativo" e do Bloco "Sugestões rápidas de teste" no Simulador de Rota (`RouteSimulatorModal`) (bol-047)
+- **Tipo:** `[UX / UI — Remoção de Elementos via Focus Mode]`
+- **Motivo / Solicitação:** Remover os 3 elementos selecionados no formulário de `RouteSimulatorModal.tsx` (`form > div:nth-of-type(1) > p:nth-of-type(1) > span:nth-of-type(1)`, `form > div:nth-of-type(1) > p:nth-of-type(1) > svg:nth-of-type(1)` e `form > div:nth-of-type(2) > div:nth-of-type(1)`).
+- **Arquivos Impactados:**
+  - `src/components/live-tracking/RouteSimulatorModal.tsx`
+  - `CHANGELOG.md`
+- **Resumo Técnico:**
+  1. **Remoção do status de coordenadas (`GPS Ativo`):** Removido o parágrafo `<p>` (com ícone `CheckCircle2` e `<span>` de coordenadas) no primeiro campo do formulário (`RouteSimulatorModal.tsx`).
+  2. **Remoção de "Sugestões rápidas de teste":** Removido o bloco `div` de destinos predefinidos (`presetDestinations`) no segundo campo do formulário e limpada a constante/import não utilizados (`CheckCircle2`, `presetDestinations`).
+
 ### [2026-10-30] — Correção de Erro de Commit para o GitHub: Remoção de Anexos Temporários (`public/assets/aistudio` — 30 MB) e Compactação de Payload (`CHANGELOG.md`) (bol-046)
 - **Tipo:** `[Fix — Infraestrutura / Exportação e Commit GitHub no AI Studio]`
 - **Motivo / Solicitação:** Corrigir o erro ao realizar commit do projeto para o GitHub a partir do AI Studio.

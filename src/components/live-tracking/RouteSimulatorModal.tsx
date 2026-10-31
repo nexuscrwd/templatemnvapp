@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Navigation,
   MapPin,
@@ -7,15 +7,18 @@ import {
   Car,
   Bike,
   Footprints,
-  Sparkles,
   Loader2,
-  CheckCircle2,
   Home,
+  Search,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { hapticLight, hapticSuccess, hapticMedium } from '../../utils/haptics';
 import { BookingAppointment, TransportMode } from '../../types';
-import { snapAndReverseGeocodeGps } from '../../services/googleMapsService';
+import {
+  snapAndReverseGeocodeGps,
+  searchGooglePlacesSuggestions,
+  GooglePlaceSuggestion,
+} from '../../services/googleMapsService';
 
 interface RouteSimulatorModalProps {
   isOpen: boolean;
@@ -36,11 +39,15 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
 
   const [originAddress, setOriginAddress] = useState<string>(defaultOriginAddress || '');
   const [originCoords, setOriginCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [originSuggestions, setOriginSuggestions] = useState<GooglePlaceSuggestion[]>([]);
+  const [isSearchingOrigin, setIsSearchingOrigin] = useState<boolean>(false);
 
   const [destAddress, setDestAddress] = useState<string>(
     defaultDestAddress || 'Aeroporto de Guarulhos - Rod. Hélio Smidt'
   );
   const [destCoords, setDestCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [destSuggestions, setDestSuggestions] = useState<GooglePlaceSuggestion[]>([]);
+  const [isSearchingDest, setIsSearchingDest] = useState<boolean>(false);
 
   const [transportMode, setTransportMode] = useState<TransportMode>('car');
   const [isLocatingOrigin, setIsLocatingOrigin] = useState<boolean>(false);
@@ -159,6 +166,59 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
     return null;
   };
 
+  // Manipulador inteligente para buscas de endereço (Texto -> Places API | CEP -> ViaCEP + Geocode)
+  const handleSmartInputChange = async (
+    rawVal: string,
+    setAddress: (val: string) => void,
+    setCoords: (coords: { lat: number; lng: number } | null) => void,
+    setSuggestions: (s: GooglePlaceSuggestion[]) => void,
+    setIsSearching: (b: boolean) => void
+  ) => {
+    setAddress(rawVal);
+    setCoords(null);
+
+    const cleanDigits = rawVal.replace(/\D/g, '');
+    const hasLetters = /[a-zA-ZÀ-ÿ]/.test(rawVal);
+
+    // Se for digitado CEP (8 dígitos numéricos)
+    if (!hasLetters && cleanDigits.length === 8) {
+      const formattedCep = `${cleanDigits.slice(0, 5)}-${cleanDigits.slice(5)}`;
+      setAddress(formattedCep);
+      setIsSearching(true);
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cleanDigits}/json/`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.erro) {
+            const fullAddr = `${data.logradouro || ''}, ${data.bairro || ''} - ${data.localidade || ''}/${data.uf || ''}, CEP ${formattedCep}`;
+            setAddress(fullAddr);
+            const coords = await geocodeAddress(fullAddr);
+            if (coords) setCoords(coords);
+            setSuggestions([]);
+            setIsSearching(false);
+            return;
+          }
+        }
+      } catch {}
+      setIsSearching(false);
+    }
+
+    // Se for busca textual (>= 3 letras)
+    if (rawVal.trim().length >= 3) {
+      setIsSearching(true);
+      try {
+        const list = await searchGooglePlacesSuggestions(rawVal.trim());
+        setSuggestions(list);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -244,17 +304,20 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
     }
   };
 
-  const presetDestinations = [
-    { label: 'Aeroporto de Guarulhos', address: 'Rod. Hélio Smidt, Aeroporto, Guarulhos - SP' },
-    { label: 'Av. Paulista, 1578', address: 'Av. Paulista, 1578 - Bela Vista, São Paulo - SP' },
-    { label: 'Shopping Morumbi', address: 'Av. Roque Petroni Júnior, 1089 - São Paulo - SP' },
-    { label: 'Parque Ibirapuera', address: 'Av. Pedro Álvares Cabral - Moema, São Paulo - SP' },
-  ];
+  const backdropMouseDownRef = useRef(false);
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
-      onClick={onClose}
+      onMouseDown={(e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropMouseDownRef.current) {
+          onClose();
+        }
+        backdropMouseDownRef.current = false;
+      }}
     >
       <div
         className={`w-full max-w-lg rounded-[6px] border shadow-2xl flex flex-col overflow-hidden max-h-[92vh] transition ${
@@ -262,6 +325,7 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
             ? 'bg-slate-950 border-slate-800 text-white'
             : 'bg-white border-slate-200 text-slate-900'
         }`}
+        onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabeçalho */}
@@ -363,10 +427,15 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
               <input
                 type="text"
                 value={originAddress}
-                onChange={(e) => {
-                  setOriginAddress(e.target.value);
-                  setOriginCoords(null);
-                }}
+                onChange={(e) =>
+                  handleSmartInputChange(
+                    e.target.value,
+                    setOriginAddress,
+                    setOriginCoords,
+                    setOriginSuggestions,
+                    setIsSearchingOrigin
+                  )
+                }
                 placeholder={isLocatingOrigin ? '' : 'Digite o endereço ou CEP de partida'}
                 className={`w-full px-3 py-2.5 pr-9 rounded-[4px] border text-xs outline-hidden transition ${
                   isDark
@@ -374,74 +443,128 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
                     : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500'
                 }`}
               />
-              {isLocatingOrigin && (
-                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                {isLocatingOrigin || isSearchingOrigin ? (
                   <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+                ) : (
+                  <Search className="w-3.5 h-3.5 text-slate-500" />
+                )}
+              </div>
+
+              {/* Sugestões de Endereço Inteligente (Places API) */}
+              {originSuggestions.length > 0 && (
+                <div
+                  className={`mt-1 rounded-[4px] border divide-y overflow-hidden shadow-xl ${
+                    isDark
+                      ? 'bg-slate-900 border-slate-700 divide-slate-800'
+                      : 'bg-white border-slate-200 divide-slate-100'
+                  }`}
+                >
+                  {originSuggestions.map((place) => (
+                    <button
+                      key={place.id}
+                      type="button"
+                      onClick={() => {
+                        hapticLight();
+                        setOriginAddress(place.formattedAddress);
+                        setOriginCoords({ lat: place.lat, lng: place.lng });
+                        setOriginSuggestions([]);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-xs flex items-start gap-2 transition cursor-pointer ${
+                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-50 text-slate-800'
+                      }`}
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold block truncate">{place.title}</span>
+                        <span
+                          className={`text-[10.5px] block truncate ${
+                            isDark ? 'text-slate-400' : 'text-slate-500'
+                          }`}
+                        >
+                          {place.formattedAddress}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
-
-            {originCoords && !isLocatingOrigin && (
-              <p className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                <span>
-                  GPS Ativo: {originCoords.lat.toFixed(4)}, {originCoords.lng.toFixed(4)}
-                </span>
-              </p>
-            )}
           </div>
 
-          {/* CAMPO 2: ENDEREÇO DE DESTINO */}
+          {/* CAMPO 2: ENDEREÇO DE DESTINO (ENDEREÇO INTELIGENTE COM SUGESTÕES & CEP) */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5">
               <Navigation className="w-3.5 h-3.5 text-emerald-400" />
               <span>Para onde você vai?</span>
             </label>
 
-            <input
-              type="text"
-              value={destAddress}
-              onChange={(e) => {
-                setDestAddress(e.target.value);
-                setDestCoords(null);
-              }}
-              placeholder="Ex: Rod. Hélio Smidt, Aeroporto de Guarulhos"
-              className={`w-full px-3 py-2.5 rounded-[4px] border text-xs outline-hidden transition ${
-                isDark
-                  ? 'bg-slate-900 border-slate-800 text-white focus:border-emerald-500'
-                  : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500'
-              }`}
-            />
-
-            {/* Presets de Teste Rápido */}
-            <div className="space-y-1 pt-1">
-              <span className={`text-[10px] font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Sugestões rápidas de teste:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {presetDestinations.map((preset) => (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => {
-                      hapticLight();
-                      setDestAddress(preset.address);
-                      setDestCoords(null);
-                    }}
-                    className={`px-2 py-1 rounded-[3px] text-[10px] font-semibold border transition cursor-pointer ${
-                      destAddress === preset.address
-                        ? 'bg-emerald-500 text-white border-emerald-400 font-bold'
-                        : isDark
-                        ? 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
-                        : 'bg-slate-100 border-slate-200 text-slate-700 hover:border-slate-300'
-                    }`}
-                  >
-                    <span className={destAddress === preset.address ? 'text-white' : ''}>
-                      {preset.label}
-                    </span>
-                  </button>
-                ))}
+            <div className="relative">
+              <input
+                type="text"
+                value={destAddress}
+                onChange={(e) =>
+                  handleSmartInputChange(
+                    e.target.value,
+                    setDestAddress,
+                    setDestCoords,
+                    setDestSuggestions,
+                    setIsSearchingDest
+                  )
+                }
+                placeholder="Ex: Rod. Hélio Smidt, Aeroporto de Guarulhos ou CEP"
+                className={`w-full px-3 py-2.5 pr-9 rounded-[4px] border text-xs outline-hidden transition ${
+                  isDark
+                    ? 'bg-slate-900 border-slate-800 text-white focus:border-emerald-500'
+                    : 'bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500'
+                }`}
+              />
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                {isSearchingDest ? (
+                  <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+                ) : (
+                  <Search className="w-3.5 h-3.5 text-slate-500" />
+                )}
               </div>
+
+              {/* Sugestões de Endereço Inteligente para Destino (Places API) */}
+              {destSuggestions.length > 0 && (
+                <div
+                  className={`mt-1 rounded-[4px] border divide-y overflow-hidden shadow-xl ${
+                    isDark
+                      ? 'bg-slate-900 border-slate-700 divide-slate-800'
+                      : 'bg-white border-slate-200 divide-slate-100'
+                  }`}
+                >
+                  {destSuggestions.map((place) => (
+                    <button
+                      key={place.id}
+                      type="button"
+                      onClick={() => {
+                        hapticLight();
+                        setDestAddress(place.formattedAddress);
+                        setDestCoords({ lat: place.lat, lng: place.lng });
+                        setDestSuggestions([]);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-xs flex items-start gap-2 transition cursor-pointer ${
+                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-50 text-slate-800'
+                      }`}
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold block truncate">{place.title}</span>
+                        <span
+                          className={`text-[10.5px] block truncate ${
+                            isDark ? 'text-slate-400' : 'text-slate-500'
+                          }`}
+                        >
+                          {place.formattedAddress}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -482,22 +605,6 @@ export const RouteSimulatorModal: React.FC<RouteSimulatorModalProps> = ({
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          {/* Dica do Simulador */}
-          <div
-            className={`p-3 rounded-[4px] border text-[11px] leading-relaxed flex items-start gap-2.5 ${
-              isDark
-                ? 'bg-slate-900/50 border-slate-800 text-slate-400'
-                : 'bg-slate-50 border-slate-200 text-slate-600'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-            <div>
-              <strong className="text-emerald-400">Como funciona o teste:</strong> Ao clicar em{' '}
-              <strong>"Ir"</strong>, o app carrega o trajeto viário real, centraliza a câmera na sua
-              posição e acompanha seus deslocamentos em tempo real como no Uber.
             </div>
           </div>
 

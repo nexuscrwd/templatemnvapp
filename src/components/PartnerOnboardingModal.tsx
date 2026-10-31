@@ -427,6 +427,8 @@ export const PartnerOnboardingModal: React.FC<PartnerOnboardingModalProps> = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const backdropMouseDownRef = useRef(false);
+
   if (!isOpen) return null;
 
   return (
@@ -435,9 +437,20 @@ export const PartnerOnboardingModal: React.FC<PartnerOnboardingModalProps> = ({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseDown={(e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropMouseDownRef.current && onClose) {
+          onClose();
+        }
+        backdropMouseDownRef.current = false;
+      }}
     >
       <div
         className="w-full max-w-lg max-h-[92vh] rounded-[8px] border border-slate-200 bg-white text-slate-900 flex flex-col shadow-2xl overflow-hidden transition-all"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Cabeçalho do Modal com Indicador de Etapas */}
         <header className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">

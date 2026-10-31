@@ -1073,12 +1073,22 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  const backdropMouseDownRef = useRef(false);
+
   if (!isOpen) return null;
 
   return (
     <div 
       className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200 cursor-pointer overflow-hidden"
-      onClick={onClose}
+      onMouseDown={(e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropMouseDownRef.current) {
+          onClose();
+        }
+        backdropMouseDownRef.current = false;
+      }}
       aria-modal="true"
       role="dialog"
     >
@@ -1087,6 +1097,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
         className={`w-full max-w-md h-dvh max-h-dvh flex flex-col shadow-2xl transition-transform animate-in slide-in-from-right duration-250 cursor-default overflow-hidden ${
           isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'
         }`}
+        onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. CABEÇALHO COMPACTO SOMENTE NAS SUB-TELAS (AGENDA, DADOS, ETC.) */}

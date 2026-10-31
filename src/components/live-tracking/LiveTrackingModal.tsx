@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Navigation,
   MapPin,
@@ -14,6 +14,13 @@ import {
   Home,
   Sparkles,
   ArrowLeft,
+  Share2,
+  ListOrdered,
+  ExternalLink,
+  CornerUpLeft,
+  CornerUpRight,
+  RotateCcw,
+  ArrowUp,
 } from 'lucide-react';
 import {
   BookingAppointment,
@@ -51,6 +58,46 @@ interface LiveRouteDepartureModalProps {
   onCancelWithReason?: (protocolCode: string, reason: string) => void;
   onRequestReschedule?: (appointment: BookingAppointment) => void;
   onOpenLiveViewer?: (appointment: BookingAppointment, initialTab: 'timeline' | 'map') => void;
+}
+
+function formatCountdownHhMm(totalMinutes: number): string {
+  const safeMin = Math.max(0, Math.round(totalMinutes));
+  const hours = Math.floor(safeMin / 60);
+  const mins = safeMin % 60;
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+}
+
+function renderManeuverIcon(maneuver: string, instruction: string) {
+  const text = (instruction || '').toLowerCase();
+  const m = (maneuver || '').toUpperCase();
+  if (m.includes('LEFT') || text.includes('esquerda')) {
+    return <CornerUpLeft className="w-4 h-4 text-emerald-500 shrink-0" />;
+  }
+  if (m.includes('RIGHT') || text.includes('direita')) {
+    return <CornerUpRight className="w-4 h-4 text-emerald-500 shrink-0" />;
+  }
+  if (m.includes('UTURN') || text.includes('retorno')) {
+    return <RotateCcw className="w-4 h-4 text-emerald-500 shrink-0" />;
+  }
+  return <ArrowUp className="w-4 h-4 text-emerald-500 shrink-0 animate-pulse" />;
+}
+
+function getShortManeuverText(maneuver: string, instruction: string): string {
+  const text = (instruction || '').toLowerCase();
+  const m = (maneuver || '').toUpperCase();
+  if (m.includes('LEFT') || text.includes('esquerda')) {
+    return 'DOBRE A ESQUERDA';
+  }
+  if (m.includes('RIGHT') || text.includes('direita')) {
+    return 'DOBRE A DIREITA';
+  }
+  if (m.includes('UTURN') || text.includes('retorno')) {
+    return 'FAÇA O RETORNO';
+  }
+  if (m.includes('STRAIGHT') || text.includes('frente') || text.includes('continua')) {
+    return 'SIGA EM FRENTE';
+  }
+  return (instruction || 'SIGA EM FRENTE').toUpperCase();
 }
 
 function normalizeBookingTransportMode(mode?: TransportMode): BookingTransportMode {
@@ -124,6 +171,7 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
   onRequestReschedule,
 }) => {
   const { isDark } = useTheme();
+  const backdropMouseDownRef = useRef(false);
 
   const isAlreadySharing =
     appointment.tracking_status === 'live_sharing' ||
@@ -139,6 +187,16 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
   const [hasReachedDestination, setHasReachedDestination] = useState<boolean>(
     appointment.tracking_status === 'arrived'
   );
+  const [currentSpeedKmh, setCurrentSpeedKmh] = useState<number>(0);
+  const [activeManeuver, setActiveManeuver] = useState<{
+    instruction: string;
+    distanceText: string;
+    maneuver: string;
+  }>({
+    instruction: 'Próxima Esquerda',
+    distanceText: 'Em rota',
+    maneuver: 'TURN-LEFT',
+  });
 
   const transportMode: TransportMode = appointment.transport_mode || 'driving';
   const [cancelReason, setCancelReason] = useState<string>('');
@@ -468,16 +526,28 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
   // SE ESTIVER NA TELA EXPANDIDA DE MAPA IN-APP + ITINERÁRIO
   if (step === 'in_app_map') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-2 bg-black/80 backdrop-blur-xs overflow-hidden animate-in fade-in duration-150">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-2 bg-black/80 backdrop-blur-xs overflow-hidden animate-in fade-in duration-150"
+        onMouseDown={(e) => {
+          backdropMouseDownRef.current = e.target === e.currentTarget;
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget && backdropMouseDownRef.current) {
+            onClose();
+          }
+          backdropMouseDownRef.current = false;
+        }}
+      >
         <div
           className={`w-full h-full sm:max-w-5xl sm:max-h-[96vh] sm:border sm:rounded-[4px] shadow-2xl flex flex-col overflow-hidden transition-colors ${
             isDark
               ? 'bg-slate-950 border-slate-800 text-white'
               : 'bg-white border-slate-200 text-slate-900'
           }`}
+          onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* 1. Cabeçalho Principal (Sem botão Abrir Externo) */}
+          {/* 1. Cabeçalho Principal */}
           <div
             className={`px-3.5 py-2.5 border-b flex items-center justify-between gap-2 shrink-0 ${
               isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
@@ -499,101 +569,153 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
               >
                 <ArrowLeft className="w-3.5 h-3.5 text-emerald-500" />
               </button>
-              <div className="min-w-0">
-                <h3 className="text-xs sm:text-sm font-extrabold font-['Poppins'] leading-snug truncate">
-                  {appointment.salonName || 'Mapa da Rota'}
-                </h3>
-                <p
-                  className={`text-[10px] font-mono truncate ${
-                    isDark ? 'text-slate-400' : 'text-slate-500'
-                  }`}
-                >
-                  {appointment.protocolCode} • {appointment.serviceTitle || appointment.service} às{' '}
-                  {appointment.time || '10:00'}
-                </p>
-              </div>
+
+              {/* Botão Compartilhar no lugar do título navegação */}
+              <button
+                type="button"
+                onClick={() => {
+                  hapticSuccess();
+                  syncAppointmentAcrossStorageAndDb(
+                    appointment,
+                    { tracking_status: 'live_sharing' },
+                    onUpdateAppointment
+                  );
+                  alert('Trajeto compartilhado com o salão em tempo real!');
+                }}
+                className="px-2.5 py-1 rounded-[4px] bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-[11px] flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+                title="Avisar o salão de destino e mostrar trajeto em tempo real"
+              >
+                <Share2 className="w-3.5 h-3.5 text-white" />
+                <span className="text-white">Compartilhar</span>
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className={`w-7 h-7 rounded-[4px] flex items-center justify-center transition cursor-pointer shrink-0 ${
-                isDark
-                  ? 'bg-slate-800 text-slate-300 hover:text-white'
-                  : 'bg-slate-200 text-slate-600 hover:text-slate-900'
-              }`}
-              title="Fechar"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Google Maps Oficial */}
+              <a
+                href={transportLinks.googleMapsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => hapticLight()}
+                className="hover:opacity-85 transition flex items-center justify-center"
+                title="Abrir no Google Maps com origem e destino preenchidos"
+              >
+                <img src="/assets/aistudio/maps_7572ddee.png" alt="Google Maps" className="w-[30px] h-[30px] object-contain shrink-0" />
+              </a>
+
+              {/* Waze Oficial */}
+              <a
+                href={transportLinks.wazeAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => hapticLight()}
+                className="hover:opacity-85 transition flex items-center justify-center"
+                title="Abrir no Waze com origem e destino preenchidos"
+              >
+                <img src="/assets/aistudio/waze_c7621164.png" alt="Waze" className="w-[30px] h-[30px] object-contain shrink-0" />
+              </a>
+
+              {/* Seletor Map/Lista no cabeçalho principal ao lado dos ícones dos apps */}
+              <div
+                className={`flex items-center gap-1 p-0.5 rounded-[4px] ${
+                  isDark ? 'bg-slate-800' : 'bg-slate-200'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    hapticLight();
+                    setActiveViewTab('map');
+                  }}
+                  className={`p-1.5 rounded-[3px] transition cursor-pointer ${
+                    activeViewTab === 'map'
+                      ? 'bg-emerald-500 text-white shadow-xs'
+                      : isDark
+                      ? 'text-slate-300 hover:text-white'
+                      : 'text-slate-700 hover:text-slate-900'
+                  }`}
+                  title="Mapa"
+                >
+                  <MapIcon className={`w-3.5 h-3.5 ${activeViewTab === 'map' ? 'text-white' : 'text-emerald-500'}`} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    hapticLight();
+                    setActiveViewTab('timeline');
+                  }}
+                  className={`p-1.5 rounded-[3px] transition cursor-pointer ${
+                    activeViewTab === 'timeline'
+                      ? 'bg-emerald-500 text-white shadow-xs'
+                      : isDark
+                      ? 'text-slate-300 hover:text-white'
+                      : 'text-slate-700 hover:text-slate-900'
+                  }`}
+                  title="Itinerário"
+                >
+                  <ListOrdered className={`w-3.5 h-3.5 ${activeViewTab === 'timeline' ? 'text-white' : 'text-emerald-500'}`} />
+                </button>
+              </div>
+
+              {/* Botão Fechar */}
+              <button
+                type="button"
+                onClick={onClose}
+                className={`w-7 h-7 rounded-[4px] flex items-center justify-center transition cursor-pointer shrink-0 ${
+                  isDark
+                    ? 'bg-slate-800 text-slate-300 hover:text-white'
+                    : 'bg-slate-200 text-slate-600 hover:text-slate-900'
+                }`}
+                title="Fechar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          {/* 2. Sub-cabeçalho com o Endereço de Destino (Somente isso) */}
-          <div
-            className={`px-3.5 py-2 border-b flex items-center gap-2 shrink-0 ${
-              isDark
-                ? 'bg-slate-950 border-slate-800 text-slate-200'
-                : 'bg-slate-50 border-slate-200 text-slate-700'
-            }`}
-          >
-            <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span className="text-xs font-bold truncate">{salonDestAddress}</span>
-          </div>
 
-          {/* 3. Abas de Modo de Visualização: "Mapa" e "Itinerário" */}
+          {/* 3. Subcabeçalho com instruções de navegação à esquerda e cards de métricas à direita */}
           <div
-            className={`px-3.5 py-2 border-b shrink-0 ${
+            className={`px-[10px] py-[5px] border-b shrink-0 flex items-center justify-between gap-2 ${
               isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'
             }`}
           >
-            <div
-              className={`grid grid-cols-2 gap-1.5 p-1 rounded-[4px] ${
-                isDark ? 'bg-slate-900' : 'bg-slate-100'
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  hapticLight();
-                  setActiveViewTab('map');
-                }}
-                className={`py-2 px-2.5 rounded-[3px] text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
-                  activeViewTab === 'map'
-                    ? 'bg-emerald-500 text-white shadow-xs'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-900'
-                }`}
-              >
-                <MapIcon
-                  className={`w-3.5 h-3.5 shrink-0 ${
-                    activeViewTab === 'map' ? 'text-white' : 'text-emerald-500'
-                  }`}
-                />
-                <span className={activeViewTab === 'map' ? 'text-white' : ''}>Mapa</span>
-              </button>
+            {/* Lado Esquerdo: Instruções de Navegação com fundo piscando em amarelo (Próxima Rua) */}
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-[6px] border border-amber-400/80 bg-amber-400/30 dark:bg-amber-500/30 backdrop-blur-xl flex items-center justify-center shadow-[1px_3px_5px_rgba(0,0,0,0.26)] shrink-0 animate-pulse">
+                {renderManeuverIcon(activeManeuver.maneuver, activeManeuver.instruction)}
+              </div>
+              <div className="min-w-0 flex flex-col pr-0 pl-[8px] pt-0 rounded-[4px] bg-amber-400/20 dark:bg-amber-500/20 border border-amber-400/50 animate-pulse h-[45px] w-[175.188px] -mx-[10px] my-[5px] justify-center">
+                <span className="text-[10px] font-extrabold text-amber-800 dark:text-amber-400 uppercase tracking-wider leading-none mb-0.5">Próxima Rua</span>
+                <span className="text-[10px] font-bold font-['Verdana'] whitespace-normal break-words line-clamp-2 text-slate-900 dark:text-white leading-tight">
+                  {getShortManeuverText(activeManeuver.maneuver, activeManeuver.instruction)}
+                </span>
+              </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  hapticLight();
-                  setActiveViewTab('timeline');
-                }}
-                className={`py-2 px-2.5 rounded-[3px] text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
-                  activeViewTab === 'timeline'
-                    ? 'bg-emerald-500 text-white shadow-xs'
-                    : isDark
-                    ? 'text-slate-300 hover:text-white'
-                    : 'text-slate-700 hover:text-slate-900'
-                }`}
-              >
-                <Clock
-                  className={`w-3.5 h-3.5 shrink-0 ${
-                    activeViewTab === 'timeline' ? 'text-white' : 'text-emerald-500'
-                  }`}
-                />
-                <span className={activeViewTab === 'timeline' ? 'text-white' : ''}>Itinerário</span>
-              </button>
+            {/* Lado Direito: Métricas (Textos acima dos números, ETA renomeado para Temp. Rest.) */}
+            <div className="flex items-center gap-3 select-none shrink-0">
+              <div className="flex flex-col items-end" title="Distância restante">
+                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none mb-0.5">Distância</span>
+                <span className="text-base font-black font-mono tabular-nums text-slate-900 dark:text-white leading-none">
+                  {metrics.distanceKm.toFixed(1).replace('.', ',')} <span className="text-[10px] font-bold">km</span>
+                </span>
+              </div>
+
+              <div className="flex flex-col items-end" title="Tempo Restante">
+                <span className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider leading-none mb-0.5">Temp. Rest.</span>
+                <span className="text-base font-black font-mono tabular-nums text-emerald-500 leading-none">
+                  {formatCountdownHhMm(metrics.etaMinutes)}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-end" title="Velocidade atual em tempo real">
+                <span className="text-[9px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider leading-none mb-0.5">Velocidade</span>
+                <span className="text-base font-black font-mono tabular-nums text-blue-500 dark:text-blue-400 leading-none">
+                  {currentSpeedKmh} <span className="text-[10px] font-bold">km/h</span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -617,6 +739,8 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
               initialDistanceKm={metrics.distanceKm}
               initialEtaMinutes={metrics.etaMinutes}
               fallbackEmbedUrl={transportLinks.googleMapsEmbedUrl}
+              onSpeedUpdate={(speed) => setCurrentSpeedKmh(speed)}
+              onManeuverUpdate={(m) => setActiveManeuver(m)}
               onLiveGpsUpdate={(lat, lng, snappedStreet) => {
                 const currentEta = appointment.eta_minutes ?? metrics.etaMinutes;
                 syncAppointmentAcrossStorageAndDb(
@@ -810,7 +934,15 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in"
-      onClick={onClose}
+      onMouseDown={(e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropMouseDownRef.current) {
+          onClose();
+        }
+        backdropMouseDownRef.current = false;
+      }}
     >
       <div
         className={`w-full max-w-md border-t sm:border rounded-t-2xl sm:rounded-[6px] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden transition-colors ${
@@ -818,6 +950,7 @@ export const LiveRouteDepartureModal: React.FC<LiveRouteDepartureModalProps> = (
             ? 'bg-slate-950 border-slate-800 text-white'
             : 'bg-white border-slate-200 text-slate-900'
         }`}
+        onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabeçalho Compacto */}
@@ -1117,6 +1250,7 @@ export const LiveTrackingDrawerModal: React.FC<LiveTrackingDrawerModalProps> = (
   onUpdateAppointment,
 }) => {
   const { isDark } = useTheme();
+  const backdropMouseDownRef = useRef(false);
   const [activeTab, setActiveTab] = useState<'timeline' | 'map'>(initialTab);
   const [hasReachedDestination, setHasReachedDestination] = useState<boolean>(
     appointment.tracking_status === 'arrived'
@@ -1326,7 +1460,15 @@ export const LiveTrackingDrawerModal: React.FC<LiveTrackingDrawerModalProps> = (
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-2 bg-black/80 backdrop-blur-xs overflow-hidden animate-in fade-in"
-      onClick={onClose}
+      onMouseDown={(e) => {
+        backdropMouseDownRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropMouseDownRef.current) {
+          onClose();
+        }
+        backdropMouseDownRef.current = false;
+      }}
     >
       <div
         className={`w-full h-full sm:max-w-5xl sm:max-h-[96vh] sm:border sm:rounded-[4px] shadow-2xl flex flex-col overflow-hidden transition-colors ${
@@ -1334,6 +1476,7 @@ export const LiveTrackingDrawerModal: React.FC<LiveTrackingDrawerModalProps> = (
             ? 'bg-slate-950 border-slate-800 text-white'
             : 'bg-white border-slate-200 text-slate-900'
         }`}
+        onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. Cabeçalho Principal (Sem botão Abrir Externo) */}
