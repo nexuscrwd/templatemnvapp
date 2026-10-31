@@ -1,0 +1,93 @@
+{
+  "id": "/?source=pwa",
+  "name": "Vagou Pro — Gestão & Vagas Imediatas",
+  "short_name": "Vagou Pro",
+  "description": "Plataforma de gestão e vagas imediatas para profissionais e estabelecimentos de beleza e bem-estar.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "window-controls-overlay"
+  ],
+  "orientation": "portrait-primary",
+  "theme_color": "#20C933",
+  "background_color": "#151A1E",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": [
+    "business",
+    "lifestyle",
+    "beauty",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Acessar Painel",
+      "short_name": "Entrar",
+      "description": "Entrar no painel de gestão do estabelecimento",
+      "url": "/?action=login",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Vagas Imediatas",
+      "short_name": "Vagas",
+      "description": "Ver radar de vagas e agendamentos",
+      "url": "/?tab=radar",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

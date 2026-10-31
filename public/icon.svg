@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="vagouVGradSvg" x1="10%" y1="90%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#087A2A" />
+      <stop offset="50%" stop-color="#20C933" />
+      <stop offset="100%" stop-color="#32E046" />
+    </linearGradient>
+  </defs>
+  <!-- Background Squircle / Rounded Container (Grafite Vagou #151A1E) -->
+  <rect width="512" height="512" rx="128" fill="#151A1E" />
+  
+  <!-- Official Vagou "V" Checkmark Symbol -->
+  <g transform="translate(40, 40) scale(2.16)">
+    <path
+      d="M 28 92 
+         C 18 80, 32 62, 46 72 
+         L 78 106 
+         C 86 114, 98 112, 106 102 
+         L 174 24 
+         C 186 10, 202 24, 192 38 
+         L 112 168 
+         C 98 186, 74 186, 60 168 
+         Z"
+      fill="url(#vagouVGradSvg)"
+    />
+  </g>
+</svg>

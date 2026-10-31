@@ -1,0 +1,28 @@
+<svg width="620" height="200" viewBox="0 0 310 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vCheckGradFull" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10982B" />
+      <stop offset="50%" stop-color="#20C933" />
+      <stop offset="100%" stop-color="#38E54B" />
+    </linearGradient>
+    <linearGradient id="vShadowGradFull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#085E1A" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#20C933" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- 1. Green Checkmark V -->
+  <g id="VagouCheckmarkGraphic">
+    <path d="M 18 36 C 8 24, 22 8, 38 18 L 62 52 C 68 60, 78 58, 84 50 L 126 6 C 136 -6, 152 8, 142 22 L 86 86 C 74 100, 54 100, 44 86 Z" fill="url(#vCheckGradFull)" />
+    <path d="M 44 60 C 52 70, 64 70, 72 60 L 58 42 Z" fill="url(#vShadowGradFull)" />
+  </g>
+
+  <!-- 2. Text "agou" in White -->
+  <text x="114" y="72" fill="#FFFFFF" font-size="66" font-weight="900" font-style="italic" font-family="'Segoe UI', -apple-system, sans-serif" letter-spacing="-1.5">agou</text>
+
+  <!-- 3. Superscript "app" in Green -->
+  <text x="256" y="30" fill="#20C933" font-size="24" font-weight="900" font-style="italic" font-family="'Segoe UI', -apple-system, sans-serif">app</text>
+
+  <!-- 4. Slogan "Vagou achou." in Green -->
+  <text x="180" y="94" fill="#20C933" font-size="15" font-weight="800" font-style="italic" font-family="'Segoe UI', -apple-system, sans-serif" letter-spacing="0.2">Vagou achou.</text>
+</svg>

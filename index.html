@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Meu Negócio — Vagou</title>
+    <meta name="description" content="Meu Negócio — Plataforma de Gestão e Vitrine Oficial Vagou" />
+    
+    <!-- PWA Primary Meta Tags -->
+    <meta name="theme-color" content="#20C933" id="meta-theme-color" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Vagou Pro" />
+    <script>
+      (function() {
+        try {
+          var userSelectedTheme = localStorage.getItem('vagou_user_theme_preference');
+          var salonSettings = null;
+          try {
+            salonSettings = JSON.parse(localStorage.getItem('vagou_salon_admin_settings') || '{}');
+          } catch(e) {}
+
+          var partnerData = null;
+          try {
+            partnerData = JSON.parse(localStorage.getItem('vagou_partner_data') || '{}');
+          } catch(e) {}
+
+          var salonDefault = (salonSettings && salonSettings.defaultTheme) || (partnerData && partnerData.defaultTheme);
+          var effectiveTheme = userSelectedTheme || salonDefault || 'light';
+
+          var hadDarkBefore = document.documentElement.classList.contains('dark');
+          if (effectiveTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          var hasDarkNow = document.documentElement.classList.contains('dark');
+
+          console.log('[Theme:index.html] Verificação Pré-Hidratação no HTML:', {
+            'localStorage.vagou_user_theme_preference': userSelectedTheme,
+            'salonSettings.defaultTheme': salonSettings ? salonSettings.defaultTheme : null,
+            'partnerData.defaultTheme': partnerData ? partnerData.defaultTheme : null,
+            effectiveTheme: effectiveTheme,
+            source: userSelectedTheme ? 'vagou_user_theme_preference' : salonDefault ? 'salonSettings.defaultTheme' : 'fallback_light',
+            hadDarkBefore: hadDarkBefore,
+            hasDarkNow: hasDarkNow,
+            isDarkClassApplied: hasDarkNow
+          });
+
+          var savedColor = localStorage.getItem('vagou_accent_color');
+          if (!savedColor) {
+            try {
+              var s = JSON.parse(localStorage.getItem('vagou_salon_admin_settings') || '{}');
+              if (s && s.accentColor) savedColor = s.accentColor;
+            } catch(e) {}
+          }
+          if (savedColor) {
+            document.documentElement.style.setProperty('--accent-color', savedColor);
+            document.documentElement.style.setProperty('--color-emerald-300', 'color-mix(in srgb, ' + savedColor + ' 70%, white 30%)');
+            document.documentElement.style.setProperty('--color-emerald-400', 'color-mix(in srgb, ' + savedColor + ' 85%, white 15%)');
+            document.documentElement.style.setProperty('--color-emerald-500', savedColor);
+            document.documentElement.style.setProperty('--color-emerald-600', 'color-mix(in srgb, ' + savedColor + ' 85%, black 15%)');
+            document.documentElement.style.setProperty('--color-emerald-700', 'color-mix(in srgb, ' + savedColor + ' 70%, black 30%)');
+            var meta = document.getElementById('meta-theme-color');
+            if (meta) meta.setAttribute('content', savedColor);
+            var styleEl = document.createElement('style');
+            styleEl.id = 'vagou-dynamic-accent';
+            styleEl.textContent = `
+              :root {
+                --accent-color: ` + savedColor + ` !important;
+                --color-emerald-300: color-mix(in srgb, ` + savedColor + ` 70%, white 30%) !important;
+                --color-emerald-400: color-mix(in srgb, ` + savedColor + ` 85%, white 15%) !important;
+                --color-emerald-500: ` + savedColor + ` !important;
+                --color-emerald-600: color-mix(in srgb, ` + savedColor + ` 85%, black 15%) !important;
+                --color-emerald-700: color-mix(in srgb, ` + savedColor + ` 70%, black 30%) !important;
+                --color-emerald-50: color-mix(in srgb, ` + savedColor + ` 10%, white 90%) !important;
+                --color-emerald-100: color-mix(in srgb, ` + savedColor + ` 18%, white 82%) !important;
+                --color-emerald-200: color-mix(in srgb, ` + savedColor + ` 30%, white 70%) !important;
+                --color-emerald-800: color-mix(in srgb, ` + savedColor + ` 55%, black 45%) !important;
+                --color-emerald-900: color-mix(in srgb, ` + savedColor + ` 40%, black 60%) !important;
+                --color-emerald-950: color-mix(in srgb, ` + savedColor + ` 20%, black 80%) !important;
+              }
+              .bg-accent {
+                background-color: ` + savedColor + ` !important;
+              }
+              .text-accent {
+                color: ` + savedColor + ` !important;
+              }
+              .border-accent {
+                border-color: ` + savedColor + ` !important;
+              }
+              .text-white, .dark .text-white {
+                color: #ffffff !important;
+              }
+            `;
+            document.head.appendChild(styleEl);
+          }
+
+          var s = JSON.parse(localStorage.getItem('vagou_salon_admin_settings') || '{}');
+          var icon = localStorage.getItem('vagou_salon_icon') || s.salonIcon || s.salonLogoDark;
+          var name = s.pwaName || s.salonName;
+          var slogan = s.slogan || '';
+          if (name) {
+            document.title = slogan ? name + ' — ' + slogan : name;
+            var metaTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+            if (metaTitle) metaTitle.setAttribute('content', name.slice(0, 14));
+            var descEl = document.querySelector('meta[name="description"]');
+            if (descEl) descEl.setAttribute('content', slogan || name);
+            var ogT = document.querySelector('meta[property="og:title"]');
+            if (ogT) ogT.setAttribute('content', name);
+            var ogD = document.querySelector('meta[property="og:description"]');
+            if (ogD) ogD.setAttribute('content', slogan || name);
+          }
+          if (icon) {
+            var appleTouchIcons = document.querySelectorAll('link[rel="apple-touch-icon"]');
+            appleTouchIcons.forEach(function(el) { el.setAttribute('href', icon); });
+            var favicons = document.querySelectorAll('link[rel="icon"]');
+            favicons.forEach(function(el) { el.setAttribute('href', icon); });
+          }
+        } catch(e) {}
+      })();
+    </script>
+    
+    <!-- Google Fonts: 4 Estilos de Fonte de Marca Homologados na Tríade (Poppins, Cormorant Garamond, Oswald, Plus Jakarta Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Oswald:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Manifest & Icons -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icon-512.png" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Meu Negócio — Vagou" />
+    <meta property="og:description" content="Meu Negócio — Plataforma de Gestão e Vitrine Oficial Vagou" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icon.svg" />
+  </head>
+  <body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased selection:bg-emerald-500 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          const isPreviewOrDev =
+            window.location.hostname.includes('run.app') ||
+            window.location.hostname.includes('localhost') ||
+            window.location.hostname.includes('127.0.0.1');
+
+          if (isPreviewOrDev) {
+            navigator.serviceWorker.getRegistrations().then((registrations) => {
+              for (const reg of registrations) {
+                reg.unregister();
+              }
+            }).catch(() => {});
+            return;
+          }
+
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.log('SW registration error:', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
+

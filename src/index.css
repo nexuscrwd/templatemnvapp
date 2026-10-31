@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+@theme {
+  --color-emerald-50: color-mix(in srgb, var(--accent-color) 10%, white 90%);
+  --color-emerald-100: color-mix(in srgb, var(--accent-color) 18%, white 82%);
+  --color-emerald-200: color-mix(in srgb, var(--accent-color) 30%, white 70%);
+  --color-emerald-300: color-mix(in srgb, var(--accent-color) 70%, white 30%);
+  --color-emerald-400: color-mix(in srgb, var(--accent-color) 85%, white 15%);
+  --color-emerald-500: var(--accent-color);
+  --color-emerald-600: color-mix(in srgb, var(--accent-color) 85%, black 15%);
+  --color-emerald-700: color-mix(in srgb, var(--accent-color) 70%, black 30%);
+  --color-emerald-800: color-mix(in srgb, var(--accent-color) 55%, black 45%);
+  --color-emerald-900: color-mix(in srgb, var(--accent-color) 40%, black 60%);
+  --color-emerald-950: color-mix(in srgb, var(--accent-color) 20%, black 80%);
+}
+
+:root {
+  --accent-color: #20C933;
+  --color-emerald-50: color-mix(in srgb, var(--accent-color) 10%, white 90%);
+  --color-emerald-100: color-mix(in srgb, var(--accent-color) 18%, white 82%);
+  --color-emerald-200: color-mix(in srgb, var(--accent-color) 30%, white 70%);
+  --color-emerald-300: color-mix(in srgb, var(--accent-color) 70%, white 30%);
+  --color-emerald-400: color-mix(in srgb, var(--accent-color) 85%, white 15%);
+  --color-emerald-500: var(--accent-color);
+  --color-emerald-600: color-mix(in srgb, var(--accent-color) 85%, black 15%);
+  --color-emerald-700: color-mix(in srgb, var(--accent-color) 70%, black 30%);
+  --color-emerald-800: color-mix(in srgb, var(--accent-color) 55%, black 45%);
+  --color-emerald-900: color-mix(in srgb, var(--accent-color) 40%, black 60%);
+  --color-emerald-950: color-mix(in srgb, var(--accent-color) 20%, black 80%);
+  --brand-primary: #D97706;
+  --brand-secondary: #1E293B;
+  --brand-bg: #0B0F17;
+  --brand-accent: #F59E0B;
+  --brand-text-primary: #FFFFFF;
+  --brand-text-muted: #94A3B8;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Utilitários diretos de Cor de Destaque */
+.bg-accent { background-color: var(--accent-color) !important; }
+.border-accent { border-color: var(--accent-color) !important; }
+.text-accent { color: var(--accent-color) !important; }
+
+/* Compatibilidade reativa para classes hexadecimais legadas */
+.bg-\[\#20C933\] { background-color: var(--accent-color) !important; }
+.hover\:bg-\[\#1bb32d\]:hover,
+.hover\:bg-\[\#1eb72e\]:hover { background-color: color-mix(in srgb, var(--accent-color) 85%, black 15%) !important; }
+.text-\[\#20C933\] { color: var(--accent-color) !important; }
+.text-\[\#087A2A\] { color: color-mix(in srgb, var(--accent-color) 72%, black 28%) !important; }
+.border-\[\#20C933\] { border-color: var(--accent-color) !important; }
+
+/* Harmonização Cromática de Bordas — Tema Escuro (Dark Slate) */
+.dark .border-slate-800:not([style*="border-color"]),
+.dark .border-slate-800\/90:not([style*="border-color"]),
+.dark .border-slate-800\/80:not([style*="border-color"]),
+.dark .border-slate-800\/60:not([style*="border-color"]) {
+  border-color: color-mix(in srgb, var(--accent-color) 24%, #1e293b 76%);
+}
+
+.dark .border-slate-700:not([style*="border-color"]),
+.dark .border-slate-700\/80:not([style*="border-color"]),
+.dark .border-slate-700\/60:not([style*="border-color"]) {
+  border-color: color-mix(in srgb, var(--accent-color) 32%, #334155 68%);
+}
+
+/* Harmonização Cromática de Bordas — Tema Claro (Light Pearl) */
+html:not(.dark) .border-slate-200:not([style*="border-color"]),
+html:not(.dark) .border-slate-200\/90:not([style*="border-color"]),
+html:not(.dark) .border-slate-200\/80:not([style*="border-color"]) {
+  border-color: color-mix(in srgb, var(--accent-color) 22%, #e2e8f0 78%);
+}
+
+html:not(.dark) .border-slate-300:not([style*="border-color"]) {
+  border-color: color-mix(in srgb, var(--accent-color) 28%, #cbd5e1 72%);
+}
+
+/* Harmonização Cromática de Subtítulos e Textos Secundários (Atmospheric Brand Tinting) */
+.dark .text-slate-300:not([style*="color"]) {
+  color: color-mix(in srgb, var(--accent-color) 16%, #cbd5e1 84%);
+}
+.dark .text-slate-400:not([style*="color"]) {
+  color: color-mix(in srgb, var(--accent-color) 24%, #94a3b8 76%);
+}
+.dark .text-slate-500:not([style*="color"]) {
+  color: color-mix(in srgb, var(--accent-color) 20%, #64748b 80%);
+}
+
+html:not(.dark) .text-slate-400:not([style*="color"]) {
+  color: color-mix(in srgb, var(--accent-color) 25%, #64748b 75%);
+}
+html:not(.dark) .text-slate-500:not([style*="color"]) {
+  color: color-mix(in srgb, var(--accent-color) 28%, #475569 72%);
+}
+html:not(.dark) .text-slate-600:not([style*="color"]) {
+  color: color-mix(in srgb, var(--accent-color) 24%, #334155 76%);
+}
+
+/* Regra inegociável de contraste do Vagou: texto sobre fundo colorido sólido deve ser branco puro */
+.text-white,
+.dark .text-white {
+  color: #ffffff !important;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  height: 100dvh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  font-family: 'Poppins', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.dark body {
+  background-color: #0B0F17;
+  color: #FFFFFF;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent-color) 35%, rgba(148, 163, 184, 0.25));
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent-color) 55%, rgba(148, 163, 184, 0.45));
+}
+
+@keyframes radar-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.animate-radar {
+  animation: radar-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Camada de tiles do mapa de navegação: filtro no pane inteiro evita linhas/costuras entre tiles */
+.vagou-map-dark .leaflet-tile-pane {
+  filter: invert(92%) hue-rotate(180deg) brightness(87%) contrast(95%);
+}
+
+.leaflet-container {
+  background-color: #0b0f17 !important;
+}
+
+html:not(.dark) .leaflet-container {
+  background-color: #e2e8f0 !important;
+}
+
+.leaflet-container img.leaflet-tile {
+  outline: 1px solid transparent;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
+}
+
